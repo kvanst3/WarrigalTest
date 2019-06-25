@@ -1,5 +1,8 @@
 require 'open-uri'
 require 'json'
+require 'net/http'
+require 'uri'
+require "rubygems"
 
 class MoviesController < ApplicationController
   before_action :authenticate_user!
@@ -11,6 +14,23 @@ class MoviesController < ApplicationController
 
   def show
     @movie = Movie.find(params[:id])
+    url = "http://www.omdbapi.com/?i=#{@movie.movieid}&apikey=#{ENV['OMDB_KEY']}"
+    result = JSON.parse(open(url).read)
+    number_seasons = result['totalSeasons'].to_i
+
+    @series_ids = []
+    i = 1
+    while i <= number_seasons do
+      url = "http://www.omdbapi.com/?t=#{@movie.name}&season=#{i}&apikey=#{ENV['OMDB_KEY']}"
+      result = JSON.parse(open(url).read)
+      number_episodes = result['Episodes'].count
+      j = 0
+      while j < number_episodes
+        @series_ids << (result['Episodes'][j]['imdbID'])[2..-1]
+        j += 1
+      end
+      i += 1
+    end
   end
 
   def create
@@ -33,6 +53,27 @@ class MoviesController < ApplicationController
     # fetches info from omdbapi - redundant due to info present in earlier call (requirement)
     url = "http://www.omdbapi.com/?i=#{movie_id}&apikey=#{ENV['OMDB_KEY']}"
     result = JSON.parse(open(url).read)
+
+    #Fetch subtitles
+    if result["Type"] == "movie"
+      uri = URI.parse("https://rest.opensubtitles.org/search/imdbid-#{(movie_id)[2..-1]}/sublanguageid-eng")
+
+      request = Net::HTTP::Get.new(uri)
+      request["X-User-Agent"] = "TemporaryUserAgent"
+
+      req_options = {
+        use_ssl: uri.scheme == "https",
+      }
+
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+        http.request(request)
+      end
+      better = JSON.parse(response.body)
+      sub_url = better[0]["SubDownloadLink"] if better.present?
+
+    end
+
+    #Add to DB
     @movie = Movie.new(
       name: result["Title"],
       stars: result["Ratings"][0]["Value"],
@@ -44,7 +85,8 @@ class MoviesController < ApplicationController
       peer: torrent_info["peer"],
       filesize: torrent_info["filesize"],
       provider: torrent_info["provider"],
-      magnet: torrent_info["url"]
+      magnet: torrent_info["url"],
+      subtitle: sub_url
     )
     # associate logged in user to movie for personalised library
     @movie.user = current_user

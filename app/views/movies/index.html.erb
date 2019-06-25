@@ -10,7 +10,11 @@
           <div>Rating: <%= movie.stars %>/10</div>
           <div>Director: <%= movie.director %></div>
           <% if movie.movietype == "movie" %>
-            <div><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, movie.magnet %> &nbsp&nbsp S: <%= movie.seed %> &nbsp&nbsp P: <%= movie.peer %> &nbsp&nbspSize: <%= movie.filesize %></div>
+            <div><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, movie.magnet %>
+              <% if movie.subtitle.present? %>
+                <%= link_to '<i class="far fa-closed-captioning"></i>'.html_safe, movie.subtitle %>
+              <% end %>
+               &nbsp&nbsp S: <%= movie.seed %> &nbsp&nbsp P: <%= movie.peer %> &nbsp&nbspSize: <%= movie.filesize %></div>
             <div>Provider: <%= movie.provider %></div>
           <% else %>
             <div><%= link_to "Episodes", movie_path(movie) %></div>
