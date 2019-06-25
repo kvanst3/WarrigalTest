@@ -1,0 +1,21 @@
+HTTP/2 200 
+date: Tue, 25 Jun 2019 18:27:02 GMT
+content-type: application/json
+set-cookie: __cfduid=d26800f9dbb7b5070eb1042d46d2ced6a1561487222; expires=Wed, 24-Jun-20 18:27:02 GMT; path=/; domain=.opensubtitles.org; HttpOnly
+cache-control: public, max-age=43200
+last-modified: Tue, 25 Jun 2019 19:31:54 +0200
+access-control-allow-methods: GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+access-control-allow-origin: *
+access-control-allow-headers: ETag, X-RateLimit-Remaining, Content-Type, Last-Modified. X-User-Agent
+x-robots-tag: noindex, nofollow
+vary: Accept-Encoding
+x-cache-backend: web2
+x-cache: MISS
+x-ratelimit-remaining: 39
+x-via: fw2.int.opensubtitles.org
+cf-cache-status: HIT
+expires: Wed, 26 Jun 2019 06:27:02 GMT
+expect-ct: max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+server: cloudflare
+cf-ray: 4ec8fe42fd0bd4a4-BRU
+
