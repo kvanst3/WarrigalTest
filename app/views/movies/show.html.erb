@@ -1,0 +1,18 @@
+<div class="main-div">
+  <div class="container">
+    <h1><%= @movie.name %></h1>
+    <% trackerTV = "https://tv-v2.api-fetch.website/show/" + @movie.movieid %>
+    <% torrent_result = JSON.parse(open(trackerTV).read) %>
+    <% i = torrent_result['episodes'].count %>
+    <% j = 0 %>
+    <% while j < i do %>
+      <div class="d-flex">
+        <div><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, torrent_result['episodes'][j]['torrents']['0']['url'] %></div>
+        <div>&nbsp Season: <%= torrent_result['episodes'][j]['season'] %></div>
+        <div>&nbsp Episode: <%= torrent_result['episodes'][j]['episode'] %></div>
+        <div>&nbsp&nbsp<%= torrent_result['episodes'][j]['title'] %></div>
+        <% j += 1 %>
+      </div>
+    <% end %>
+  </div>
+</div>

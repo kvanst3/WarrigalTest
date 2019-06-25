@@ -4,12 +4,17 @@
     <div id="cards">
       <% @movies.each do |movie| %>
         <div class="card">
+          <div><%= link_to '<i class="fas fa-times"></i>'.html_safe, movie_path(movie), method: :delete, id: "trash" %></div>
           <div><%= image_tag movie.url %></div>
           <div><%= truncate(movie.name, length: 30) %></div>
           <div>Rating: <%= movie.stars %>/10</div>
           <div>Director: <%= movie.director %></div>
-          <div><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, movie.magnet %> &nbsp&nbsp S: <%= movie.seed %> &nbsp&nbsp P: <%= movie.peer %> &nbsp&nbspSize: <%= movie.filesize %></div>
-          <div>Provider: <%= movie.provider %></div>
+          <% if movie.movietype == "movie" %>
+            <div><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, movie.magnet %> &nbsp&nbsp S: <%= movie.seed %> &nbsp&nbsp P: <%= movie.peer %> &nbsp&nbspSize: <%= movie.filesize %></div>
+            <div>Provider: <%= movie.provider %></div>
+          <% else %>
+            <div><%= link_to "Episodes", movie_path(movie) %></div>
+          <% end %>
         </div>
       <% end %>
     </div>

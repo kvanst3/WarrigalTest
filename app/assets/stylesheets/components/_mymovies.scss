@@ -6,4 +6,14 @@
     height: 350px;
     width: 100%;
   }
+  #trash{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 25px;
+    color:white;
+  }
+  #trash:hover{
+    font-size: 30px;
+  }
 }
