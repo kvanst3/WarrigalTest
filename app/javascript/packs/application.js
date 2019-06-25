@@ -10,11 +10,11 @@ const form = document.querySelector('#search-movies');
 const query = document.getElementById("keyword");
 
 const insertMovies = (data) => {
+  list.innerHTML = "";
   data.Search.forEach((result) => {
     const movieTitle = result.Title;
     const movie = `<li class="card">
       <img class="search-img" src="${result.Poster}" alt="" />
-      <div id='popup'>Extended info about a user</div>
       <p>${result.Title}</p>
       <div id="create-button"><a data-method="post" href="/movies?id=${result.imdbID}"> Add to Wishlist </a></div>
     </li>`;

@@ -9,13 +9,26 @@ class MoviesController < ApplicationController
     @movies = Movie.all
   end
 
+  def show
+    @movie = Movie.find(params[:id])
+  end
+
   def create
     # Gets the IMDB id
     movie_id = id_params[:id]
     # Gets the torrent informations - returns a hash with url, seed, peer, filesize and provider
     torrent = "https://tv-v2.api-fetch.website/movie/" + movie_id
-    torrent_result = JSON.parse(open(torrent).read)
-    torrent_info = torrent_result["torrents"].first[1].first[1]
+    if valid_json?(open(torrent).read)
+      torrent_result = JSON.parse(open(torrent).read)
+      torrent_info = torrent_result["torrents"].first[1].first[1]
+    else
+      torrent_info = {"provider"=>"n/a", "filesize"=>"n/a", "size"=>0, "peer"=>0, "seed"=>0, "url"=>"#"}
+      trackerTV = "https://tv-v2.api-fetch.website/show/" + movie_id
+      # if valid_json?(open(trackerTV).read)
+      #   torrent_result = JSON.parse(open(trackerTV).read)
+      #   raise
+      # end
+    end
 
     # fetches info from omdbapi - redundant due to info present in earlier call (requirement)
     url = "http://www.omdbapi.com/?i=#{movie_id}&apikey=#{ENV['OMDB_KEY']}"
@@ -25,6 +38,8 @@ class MoviesController < ApplicationController
       stars: result["Ratings"][0]["Value"],
       director: result["Director"],
       url: result["Poster"],
+      movietype: result["Type"],
+      movieid: movie_id,
       seed: torrent_info["seed"],
       peer: torrent_info["peer"],
       filesize: torrent_info["filesize"],
@@ -41,10 +56,22 @@ class MoviesController < ApplicationController
     end
   end
 
+  def destroy
+    @movie = Movie.find(params[:id])
+    @movie.destroy
+    redirect_to movies_path
+  end
+
   private
 
-  # allow params to reach controller
+  # allow imdb id to reach controller
   def id_params
     params.permit(:id)
+  end
+
+  def valid_json?(string)
+    !!JSON.parse(string)
+  rescue JSON::ParserError
+    false
   end
 end
