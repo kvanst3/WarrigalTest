@@ -1,9 +1,15 @@
 <div class="main-div">
   <div class="container">
     <h1>My Library</h1>
-
-    <% @movies.each do |movie| %>
-      <%= movie.name %>
-    <% end %>
+    <div id="cards">
+      <% @movies.each do |movie| %>
+        <div class="card">
+          <div><%= image_tag movie.url %></div>
+          <div>Title: <%= movie.name %></div>
+          <div>Rating: <%= movie.stars %>/10</div>
+          <div>Director: <%= movie.director %></div>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
