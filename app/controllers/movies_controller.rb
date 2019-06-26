@@ -24,8 +24,7 @@ class MoviesController < ApplicationController
       j = 1
       response = 1
       while j < 20
-        uri = URI.parse("https://rest.opensubtitles.org/search/episode-#{j}/imdbid-#{(@movie.movieid)[2..-1]}/season-#{i}/tags-web-dl")
-
+        uri = URI.parse("https://rest.opensubtitles.org/search/episode-#{j}/imdbid-#{(@movie.movieid)[2..-1]}/season-#{i}/sublanguageid-#{current_user.language == "EN" ? "eng" : "fre"}")
         request = Net::HTTP::Get.new(uri)
         request["X-User-Agent"] = "TemporaryUserAgent"
 
@@ -58,10 +57,6 @@ class MoviesController < ApplicationController
     else
       torrent_info = {"provider"=>"n/a", "filesize"=>"n/a", "size"=>0, "peer"=>0, "seed"=>0, "url"=>"#"}
       trackerTV = "https://tv-v2.api-fetch.website/show/" + movie_id
-      # if valid_json?(open(trackerTV).read)
-      #   torrent_result = JSON.parse(open(trackerTV).read)
-      #   raise
-      # end
     end
 
     # fetches info from omdbapi - redundant due to info present in earlier call (requirement)
@@ -70,7 +65,7 @@ class MoviesController < ApplicationController
 
     #Fetch subtitles
     if result["Type"] == "movie"
-      uri = URI.parse("https://rest.opensubtitles.org/search/imdbid-#{(movie_id)[2..-1]}/sublanguageid-eng")
+      uri = URI.parse("https://rest.opensubtitles.org/search/imdbid-#{(movie_id)[2..-1]}/sublanguageid-#{current_user.language == "EN" ? "eng" : "fre"}")
 
       request = Net::HTTP::Get.new(uri)
       request["X-User-Agent"] = "TemporaryUserAgent"
