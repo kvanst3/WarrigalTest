@@ -18,16 +18,30 @@ class MoviesController < ApplicationController
     result = JSON.parse(open(url).read)
     number_seasons = result['totalSeasons'].to_i
 
-    @series_ids = []
+    @serie_subs = {}
     i = 1
     while i <= number_seasons do
-      url = "http://www.omdbapi.com/?t=#{@movie.name}&season=#{i}&apikey=#{ENV['OMDB_KEY']}"
-      result = JSON.parse(open(url).read)
-      number_episodes = result['Episodes'].count
-      j = 0
-      while j < number_episodes
-        @series_ids << (result['Episodes'][j]['imdbID'])[2..-1]
+      j = 1
+      response = 1
+      while j < 20
+        uri = URI.parse("https://rest.opensubtitles.org/search/episode-#{j}/imdbid-#{(@movie.movieid)[2..-1]}/season-#{i}/tags-web-dl")
+
+        request = Net::HTTP::Get.new(uri)
+        request["X-User-Agent"] = "TemporaryUserAgent"
+
+        req_options = {
+          use_ssl: uri.scheme == "https",
+        }
+
+        response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+          http.request(request)
+        end
+
+        better = JSON.parse(response.body)
+        sub_url = better[0]["SubDownloadLink"] if better.present?
+        break if (sub_url == @serie_subs.values.last) && (@serie_subs.count > 1)
         j += 1
+        @serie_subs[better[0]["QueryParameters"]["season"].to_s + better[0]["QueryParameters"]["episode"].to_s] = sub_url
       end
       i += 1
     end

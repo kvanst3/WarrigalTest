@@ -24,29 +24,10 @@
       <% i = seriearray.count %>
       <% while j < i do %>
         <div class="d-flex">
+          <% current_episode = (seriearray[j][0]).to_s + (seriearray[j][1]).to_s %>
 
-          <%# Block for importing subtitles %>
-          <% if j < @series_ids.count %>
-            <% uri = URI.parse("https://rest.opensubtitles.org/search/imdbid-#{@series_ids[j]}/sublanguageid-eng")
-
-            request = Net::HTTP::Get.new(uri)
-            request["X-User-Agent"] = "TemporaryUserAgent"
-
-            req_options = {
-              use_ssl: uri.scheme == "https",
-            }
-
-            response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-              http.request(request)
-            end
-            better = JSON.parse(response.body)
-            sub_url = better[0]["SubDownloadLink"] if better.present? %>
-          <% end %>
-
-          <%# Subtitles block ends here %>
-
-          <%# spit all info; sorted and coinciding  %>
-          <div class="d-flex"><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, seriearray[j][2] %> &nbsp <%= link_to '<i class="far fa-closed-captioning"></i>'.html_safe, sub_url %></div>
+          <%# spit all info; sorted and matched  %>
+          <div class="d-flex"><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, seriearray[j][2] %> &nbsp <%= link_to '<i class="far fa-closed-captioning"></i>'.html_safe, @serie_subs[current_episode] %></div>
           <div>&nbsp Season: <%= seriearray[j][0] %></div>
           <div>&nbsp Episode: <%= seriearray[j][1] %></div>
           <div>&nbsp&nbsp<%= seriearray[j][3] %></div>
