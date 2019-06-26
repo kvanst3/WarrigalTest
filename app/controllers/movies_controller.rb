@@ -9,7 +9,7 @@ class MoviesController < ApplicationController
 
   # show all selected movies
   def index
-    @movies = Movie.all
+    @movies = Movie.where(user_id: current_user)
   end
 
   def show
