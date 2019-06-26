@@ -1,43 +1,62 @@
 <div class="main-div">
   <div class="container">
     <h1><%= @movie.name %></h1>
+    <%# declare array to store parsed info from tv-v2.api  %>
+    <% seriearray = [] %>
+    <%# parse tracker response %>
     <% trackerTV = "https://tv-v2.api-fetch.website/show/" + @movie.movieid %>
     <% torrent_result = JSON.parse(open(trackerTV).read) %>
+    <%# if result, push to array %>
     <% if torrent_result != nil %>
       <% i = torrent_result['episodes'].count %>
       <% j = 0 %>
       <% while j < i do %>
+
+        <% seriearray << [torrent_result['episodes'][j]['season'], torrent_result['episodes'][j]['episode'], torrent_result['episodes'][j]['torrents']['0']['url'], torrent_result['episodes'][j]['title'], torrent_result['episodes'][0]['torrents']['0']['provider']] %>
+
+        <% j += 1 %>
+
+      <% end %>
+      <%# sort array - tracker info not sorted by default  %>
+      <% seriearray.sort! %>
+      <%# mesh tracker info and subtitles together %>
+      <% j = 0 %>
+      <% i = seriearray.count %>
+      <% while j < i do %>
         <div class="d-flex">
 
-        <% if j < @series_ids.count %>
-          <% uri = URI.parse("https://rest.opensubtitles.org/search/imdbid-#{@series_ids[j]}/sublanguageid-eng")
+          <%# Block for importing subtitles %>
+          <% if j < @series_ids.count %>
+            <% uri = URI.parse("https://rest.opensubtitles.org/search/imdbid-#{@series_ids[j]}/sublanguageid-eng")
 
-          request = Net::HTTP::Get.new(uri)
-          request["X-User-Agent"] = "TemporaryUserAgent"
+            request = Net::HTTP::Get.new(uri)
+            request["X-User-Agent"] = "TemporaryUserAgent"
 
-          req_options = {
-            use_ssl: uri.scheme == "https",
-          }
+            req_options = {
+              use_ssl: uri.scheme == "https",
+            }
 
-          response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-            http.request(request)
-          end
-          better = JSON.parse(response.body)
-          sub_url = better[0]["SubDownloadLink"] if better.present? %>
-        <% end %>
+            response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+              http.request(request)
+            end
+            better = JSON.parse(response.body)
+            sub_url = better[0]["SubDownloadLink"] if better.present? %>
+          <% end %>
 
+          <%# Subtitles block ends here %>
 
-          <div class="d-flex"><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, torrent_result['episodes'][j]['torrents']['0']['url'] %> &nbsp <%= link_to '<i class="far fa-closed-captioning"></i>'.html_safe, sub_url %></div>
-          <div>&nbsp Season: <%= torrent_result['episodes'][j]['season'] %></div>
-          <div>&nbsp Episode: <%= torrent_result['episodes'][j]['episode'] %></div>
-          <div>&nbsp&nbsp<%= torrent_result['episodes'][j]['title'] %></div>
-          <div>&nbsp&nbsp<%=torrent_result['episodes'][0]['torrents']['0']['provider'] %></div>
-          <%# raise %>
-          <% j += 1 %>
+          <%# spit all info; sorted and coinciding  %>
+          <div class="d-flex"><%= link_to '<i class="fas fa-magnet"></i>'.html_safe, seriearray[j][2] %> &nbsp <%= link_to '<i class="far fa-closed-captioning"></i>'.html_safe, sub_url %></div>
+          <div>&nbsp Season: <%= seriearray[j][0] %></div>
+          <div>&nbsp Episode: <%= seriearray[j][1] %></div>
+          <div>&nbsp&nbsp<%= seriearray[j][3] %></div>
+          <div>&nbsp&nbsp<%=seriearray[j][4] %></div>
         </div>
+        <% j += 1 %>
       <% end %>
     <% else %>
       <div><%= "Sorry, no info on this serie" %></div>
     <% end %>
+
   </div>
 </div>
