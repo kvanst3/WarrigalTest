@@ -7,23 +7,24 @@ require "rubygems"
 class MoviesController < ApplicationController
   before_action :authenticate_user!
 
-  # show all selected movies
+  # show all movies in one's library
   def index
     @movies = Movie.where(user_id: current_user)
   end
-
+  #displays series' episodes with torrent & subtitles
   def show
     @movie = Movie.find(params[:id])
+    #get the number of seasons per series
     url = "http://www.omdbapi.com/?i=#{@movie.movieid}&apikey=#{ENV['OMDB_KEY']}"
     result = JSON.parse(open(url).read)
     number_seasons = result['totalSeasons'].to_i
-
+    #create a hash for subtitles
     @serie_subs = {}
     i = 1
     while i <= number_seasons do
       j = 1
-      response = 1
       while j < 20
+        #get subtitles based on language prefrence
         uri = URI.parse("https://rest.opensubtitles.org/search/episode-#{j}/imdbid-#{(@movie.movieid)[2..-1]}/season-#{i}/sublanguageid-#{current_user.language == "EN" ? "eng" : "fre"}")
         request = Net::HTTP::Get.new(uri)
         request["X-User-Agent"] = "TemporaryUserAgent"
