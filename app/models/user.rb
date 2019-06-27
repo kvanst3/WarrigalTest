@@ -6,5 +6,5 @@ class User < ApplicationRecord
 
   validates :language, inclusion: { in: ['EN', 'FR'] }
 
-  has_many :movies
+  has_many :movies, dependent: :destroy
 end
