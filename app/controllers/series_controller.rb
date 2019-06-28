@@ -1,12 +1,12 @@
 class SeriesController < ApplicationController
   def create
-    @my_test_variable = params[:my_test_variable]
-    idmovie = Movie.where(movieid: @my_test_variable).ids.last
+    @omdb_id = params[:omdb_id]
+    idmovie = Movie.where(movie_id: @omdb_id).ids.last
 
     seriearray = []
     # parse tracker response
-    trackerTV = "https://tv-v2.api-fetch.website/show/" + @my_test_variable
-    torrent_result = JSON.parse(open(trackerTV).read)
+    tracker_tv = "https://tv-v2.api-fetch.website/show/" + @omdb_id
+    torrent_result = JSON.parse(open(tracker_tv).read)
     # if result, push to array
     if torrent_result != nil
       i = torrent_result['episodes'].count
@@ -21,17 +21,17 @@ class SeriesController < ApplicationController
       return redirect_to movie_path(idmovie)
     end
 
-    url = "http://www.omdbapi.com/?i=#{@my_test_variable}&apikey=#{ENV['OMDB_KEY']}"
+    url = "http://www.omdbapi.com/?i=#{@omdb_id}&apikey=#{ENV['OMDB_KEY']}"
     result = JSON.parse(open(url).read)
     number_seasons = result['totalSeasons'].to_i
     # create a hash for subtitles
-    @serie_subs = {}
+    @serie_subtitle = {}
     i = 1
     while i <= number_seasons do
       j = 1
       while j < 20
         # get subtitles based on language prefrence
-        uri = URI.parse("https://rest.opensubtitles.org/search/episode-#{j}/imdbid-#{(@my_test_variable)[2..-1]}/season-#{i}/sublanguageid-#{current_user.language == "EN" ? "eng" : "fre"}")
+        uri = URI.parse("https://rest.opensubtitles.org/search/episode-#{j}/imdbid-#{(@omdb_id)[2..-1]}/season-#{i}/sublanguageid-#{current_user.language == "EN" ? "eng" : "fre"}")
         request = Net::HTTP::Get.new(uri)
         request["X-User-Agent"] = "TemporaryUserAgent"
 
@@ -43,23 +43,25 @@ class SeriesController < ApplicationController
           http.request(request)
         end
 
-        better = JSON.parse(response.body)
-        sub_url = better[0]["SubDownloadLink"] if better.present?
-        break if (sub_url == @serie_subs.values.last) && (@serie_subs.count > 1)
+        parsed_response = JSON.parse(response.body)
+        sub_url = parsed_response[0]["SubDownloadLink"] if parsed_response.present?
+        break if (sub_url == @serie_subtitle.values.last) && (@serie_subtitle.count > 1)
         j += 1
-        @serie_subs[better[0]["QueryParameters"]["season"].to_s + better[0]["QueryParameters"]["episode"].to_s] = sub_url
+        # returns a unique id for subtitles to match them with episodes (e.g: 1|11 for season 1 episode 11)
+        @serie_subtitle[parsed_response[0]["QueryParameters"]["season"].to_s + '|' + parsed_response[0]["QueryParameters"]["episode"].to_s] = sub_url
       end
         i += 1
     end
     i = 0
     while i < seriearray.count
-      current_episode = seriearray[i][0].to_s + seriearray[i][1].to_s
+      # returns a unique id for episodes to match them with subtitles (e.g: 1|11 for season 1 episode 11)
+      current_episode = seriearray[i][0].to_s + '|' + seriearray[i][1].to_s
       @serie = Serie.new(
         season: seriearray[i][0],
         episode: seriearray[i][1],
         magnet: seriearray[i][2],
         title: seriearray[i][3],
-        subtitle: @serie_subs[current_episode]
+        subtitle: @serie_subtitle[current_episode]
       )
       # associate logged in user to movie for personalised library
       @serie.movie_id = idmovie
