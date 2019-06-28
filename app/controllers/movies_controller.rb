@@ -48,33 +48,33 @@ class MoviesController < ApplicationController
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-      better = JSON.parse(response.body)
-      sub_url = better[0]["SubDownloadLink"] if better.present?
+      parsed_response = JSON.parse(response.body)
+      subtitle_url = parsed_response[0]["SubDownloadLink"] if parsed_response.present?
 
     end
 
     #Add to DB
-    @movie = Movie.new(
+    @movie = current_user.movies.new(
       name: result["Title"],
       stars: result["Ratings"][0]["Value"],
       director: result["Director"],
       url: result["Poster"],
       movietype: result["Type"],
-      movieid: movie_id,
+      movie_id: movie_id,
       seed: torrent_info["seed"],
       peer: torrent_info["peer"],
       filesize: torrent_info["filesize"],
       provider: torrent_info["provider"],
       magnet: torrent_info["url"],
-      subtitle: sub_url
+      subtitle: subtitle_url
     )
     # associate logged in user to movie for personalised library
-    @movie.user = current_user
+    ### @movie.user = current_user
     # save in DB
     if @movie.save && result["Type"] == "movie"
       redirect_to movies_path
     elsif @movie.save
-      redirect_to series_path(my_test_variable: @movie.movieid)
+      redirect_to series_path(omdb_id: @movie.movie_id)
     else
       render :root
     end
@@ -82,7 +82,7 @@ class MoviesController < ApplicationController
 
   def destroy
     @movie = Movie.find(params[:id])
-    @movie.destroy
+    @movie.destroy if @movie.user == current_user
     redirect_to movies_path
   end
 
