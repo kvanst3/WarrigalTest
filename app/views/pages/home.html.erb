@@ -2,7 +2,7 @@
   <div class="container">
     <h1>Welcome to your torrent scrapper</h1>
     <p>Use the searchbar to add movies or series to your library</p>
-      <form id="search-movies" class="form-inline">
+      <form id="search-movies" class="form-inline" data-omdbid="<%= ENV['OMDB_KEY'] %>">
         <input id="keyword" name="search[movie]" type="text" class="form-control mr-2" placeholder="Find movies">
         <input type="submit" class="btn btn-primary mr-auto ml-2" id= "search-button" value="Search">
       </form>
