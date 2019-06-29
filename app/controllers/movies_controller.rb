@@ -31,7 +31,7 @@ class MoviesController < ApplicationController
     end
 
     # fetches info from omdbapi
-    url = "http://www.omdbapi.com/?i=#{movie_id}&apikey=#{ENV['OMDB_KEY']}"
+    url = "https://www.omdbapi.com/?i=#{movie_id}&apikey=#{ENV['OMDB_KEY']}"
     result = JSON.parse(open(url).read)
 
     #Fetch subtitles

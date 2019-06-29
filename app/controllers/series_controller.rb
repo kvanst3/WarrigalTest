@@ -21,7 +21,7 @@ class SeriesController < ApplicationController
       return redirect_to movie_path(idmovie)
     end
 
-    url = "http://www.omdbapi.com/?i=#{@omdb_id}&apikey=#{ENV['OMDB_KEY']}"
+    url = "https://www.omdbapi.com/?i=#{@omdb_id}&apikey=#{ENV['OMDB_KEY']}"
     result = JSON.parse(open(url).read)
     number_seasons = result['totalSeasons'].to_i
     # create a hash for subtitles

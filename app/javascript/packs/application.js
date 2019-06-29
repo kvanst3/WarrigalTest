@@ -26,7 +26,7 @@ const insertMovies = (data) => {
 };
 
 const fetchMovies = (query) => {
-  fetch(`http://www.omdbapi.com/?s=${query}&apikey=${omdbkey}`)
+  fetch(`https://www.omdbapi.com/?s=${query}&apikey=${omdbkey}`)
     .then(response => response.json())
     .then(insertMovies);
 };
