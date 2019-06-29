@@ -30,7 +30,7 @@ class MoviesController < ApplicationController
       trackerTV = "https://tv-v2.api-fetch.website/show/" + movie_id
     end
 
-    # fetches info from omdbapi - redundant due to info present in earlier call (requirement)
+    # fetches info from omdbapi
     url = "http://www.omdbapi.com/?i=#{movie_id}&apikey=#{ENV['OMDB_KEY']}"
     result = JSON.parse(open(url).read)
 
