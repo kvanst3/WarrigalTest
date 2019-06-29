@@ -8,6 +8,7 @@ require('dotenv').config();
 const list = document.querySelector('#results');
 const form = document.querySelector('#search-movies');
 const query = document.getElementById("keyword");
+const omdbkey = document.getElementById('search-movies').dataset.omdbid;
 
 const insertMovies = (data) => {
   list.innerHTML = "";
@@ -25,11 +26,11 @@ const insertMovies = (data) => {
 };
 
 const fetchMovies = (query) => {
-  fetch(`http://www.omdbapi.com/?s=${query}&apikey=${process.env['OMDB_KEY']}`)
+  fetch(`http://www.omdbapi.com/?s=${query}&apikey=${omdbkey}`)
     .then(response => response.json())
     .then(insertMovies);
 };
-
+//process.env['OMDB_KEY']
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
